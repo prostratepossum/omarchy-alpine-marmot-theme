@@ -4,6 +4,8 @@ A night-meadow theme for [Omarchy](https://omarchy.org): a marmot watching the M
 
 ![Desktop](previews/desktop.jpg)
 
+![In use](previews/session.jpg)
+
 | Live wallpaper | Login intro | Lock screen |
 |---|---|---|
 | ![Live wallpaper](previews/live-wallpaper.gif) | ![Intro](previews/intro.gif) | ![Lock screen](previews/lock.gif) |
