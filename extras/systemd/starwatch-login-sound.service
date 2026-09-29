@@ -1,0 +1,13 @@
+[Unit]
+Description=Starwatch night-meadow sound at login
+After=graphical-session.target pipewire.service wireplumber.service
+PartOf=graphical-session.target
+
+[Service]
+Type=oneshot
+# Let the desktop and audio settle before the meadow fades in.
+ExecStartPre=/usr/bin/sleep 2
+ExecStart=/usr/bin/pw-play %h/.config/omarchy/themes/alpine-marmot/sounds/starwatch-login.wav
+
+[Install]
+WantedBy=graphical-session.target

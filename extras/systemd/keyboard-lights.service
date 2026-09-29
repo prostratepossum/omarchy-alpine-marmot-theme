@@ -1,0 +1,20 @@
+[Unit]
+Description=Razer BlackWidow wallpaper-matched lighting with reactive typing
+After=graphical-session.target
+PartOf=graphical-session.target
+StartLimitIntervalSec=60
+StartLimitBurst=8
+
+[Service]
+Type=simple
+Environment=PYTHONUNBUFFERED=1
+# Pin system Python so mise shims cannot hide python-evdev.
+Environment=PATH=/usr/bin:/usr/local/bin:%h/.local/bin
+ExecStart=/usr/bin/python3 %h/.local/bin/keyboard-lights --daemon
+Restart=on-failure
+RestartSec=5
+TimeoutStartSec=90
+Nice=5
+
+[Install]
+WantedBy=graphical-session.target

@@ -1,0 +1,114 @@
+#!/bin/bash
+# Alpine Marmot / Starwatch for Omarchy.
+#
+#   ./install.sh                 theme + live wallpaper + lock screen + intro
+#   ./install.sh --all           ...plus terminal rice and login chime
+#   ./install.sh --dotfiles      also install starship, fastfetch, lazygit, eza/fzf colors
+#   ./install.sh --sound         also play the Starwatch chime at login
+#   ./install.sh --no-plugins    theme only (colors, wallpapers, btop, icons)
+#   ./install.sh --uninstall     restore the stock Omarchy plugins and remove extras
+#
+# Boot splash is separate (needs sudo, rebuilds initramfs):
+#   ~/.config/omarchy/themes/alpine-marmot/plymouth-starwatch/install.sh
+set -euo pipefail
+
+SRC="$(cd "$(dirname "$0")" && pwd)"
+THEME_DIR="$HOME/.config/omarchy/themes/alpine-marmot"
+PLUGINS_DIR="$HOME/.config/omarchy/plugins"
+STAMP=$(date +%s)
+PLUGINS=(fratermarmota.background fratermarmota.lock fratermarmota.intro)
+
+plugins=1 dotfiles=0 sound=0 uninstall=0
+for arg in "$@"; do
+  case "$arg" in
+  --all) dotfiles=1 sound=1 ;;
+  --dotfiles) dotfiles=1 ;;
+  --sound) sound=1 ;;
+  --no-plugins) plugins=0 ;;
+  --uninstall) uninstall=1 ;;
+  -h | --help) sed -n '2,12p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
+  *) echo "unknown option: $arg" >&2; exit 1 ;;
+  esac
+done
+
+command -v omarchy >/dev/null || { echo "This needs Omarchy (https://omarchy.org)." >&2; exit 1; }
+
+# Copy a file into place, keeping a timestamped backup of anything it replaces.
+place() {
+  local from="$1" to="$2"
+  mkdir -p "$(dirname "$to")"
+  if [[ -e $to ]] && ! cmp -s "$from" "$to"; then
+    cp -a "$to" "$to.bak.$STAMP"
+    echo "  backed up $to -> $to.bak.$STAMP"
+  fi
+  cp "$from" "$to"
+}
+
+if (( uninstall )); then
+  for id in "${PLUGINS[@]}"; do omarchy plugin remove "$id" --yes 2>/dev/null || true; done
+  omarchy plugin enable omarchy.background >/dev/null 2>&1 || true
+  omarchy plugin enable omarchy.lock >/dev/null 2>&1 || true
+  systemctl --user disable --now starwatch-login-sound.service 2>/dev/null || true
+  rm -f "$HOME/.config/systemd/user/starwatch-login-sound.service"
+  sed -i '/# >>> starwatch >>>/,/# <<< starwatch <<</d' "$HOME/.bashrc" 2>/dev/null || true
+  echo "Removed the Starwatch plugins, login chime and shell colors."
+  echo "Pick another theme with: omarchy theme set <name>"
+  echo "Dotfiles you replaced are next to their originals as *.bak.<timestamp>."
+  exit 0
+fi
+
+echo "✦ Installing the Alpine Marmot theme"
+mkdir -p "$THEME_DIR"
+# Skip the copy when run from a clone made by `omarchy theme install`.
+[[ $SRC -ef $THEME_DIR ]] || cp -a "$SRC"/{colors.toml,btop.theme,icons.theme,preview.png,backgrounds,plymouth,plymouth-starwatch,sounds} "$THEME_DIR/"
+omarchy theme set alpine-marmot
+# theme set may pick a random wallpaper; the animated one is 0-starwatch.
+omarchy theme bg set "$THEME_DIR/backgrounds/0-starwatch.jpg" >/dev/null 2>&1 || true
+
+if (( plugins )); then
+  echo "✦ Installing the Starwatch shell plugins (live wallpaper, lock screen, intro)"
+  for id in "${PLUGINS[@]}"; do
+    if [[ -d $PLUGINS_DIR/$id ]]; then
+      mv "$PLUGINS_DIR/$id" "$PLUGINS_DIR/.$id.bak.$STAMP"
+      echo "  backed up existing $id -> .$id.bak.$STAMP"
+    fi
+    cp -a "$SRC/plugins/$id" "$PLUGINS_DIR/$id"
+  done
+  # The background and lock plugins replace the stock ones.
+  omarchy plugin disable omarchy.background >/dev/null
+  omarchy plugin disable omarchy.lock >/dev/null
+  for id in "${PLUGINS[@]}"; do omarchy plugin enable "$id" >/dev/null; done
+  omarchy-restart-shell >/dev/null 2>&1 || true
+fi
+
+if (( dotfiles )); then
+  echo "✦ Installing the terminal rice"
+  place "$SRC/extras/starship.toml" "$HOME/.config/starship.toml"
+  place "$SRC/extras/fastfetch/config.jsonc" "$HOME/.config/fastfetch/config.jsonc"
+  place "$SRC/extras/fastfetch/marmot-starwatch.txt" "$HOME/.config/fastfetch/marmot-starwatch.txt"
+  place "$SRC/extras/lazygit/config.yml" "$HOME/.config/lazygit/config.yml"
+  if ! grep -q '# >>> starwatch >>>' "$HOME/.bashrc" 2>/dev/null; then
+    { echo; echo '# >>> starwatch >>>'; cat "$SRC/extras/bash/starwatch.sh"; echo '# <<< starwatch <<<'; } >> "$HOME/.bashrc"
+    echo "  added eza/fzf colors to ~/.bashrc"
+  fi
+  btop_conf="$HOME/.config/btop/btop.conf"
+  [[ -f $btop_conf ]] && sed -i 's/^theme_background = .*/theme_background = false/' "$btop_conf"
+fi
+
+if (( sound )); then
+  echo "✦ Enabling the login chime"
+  place "$SRC/extras/systemd/starwatch-login-sound.service" "$HOME/.config/systemd/user/starwatch-login-sound.service"
+  systemctl --user daemon-reload
+  systemctl --user enable starwatch-login-sound.service
+fi
+
+cat <<DONE
+
+✦ Done. Try:
+  omarchy-shell -q intro play                  replay the login intro
+  omarchy-shell lock previewInteractive        preview the lock screen (closes after 90s)
+  omarchy-shell -q background toggleAnimation  pause/resume the live wallpaper
+
+Optional animated boot splash (sudo, rebuilds initramfs; --revert to undo):
+  $THEME_DIR/plymouth-starwatch/install.sh
+DONE

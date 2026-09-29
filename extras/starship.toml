@@ -1,0 +1,101 @@
+# Starwatch prompt — matches the Alpine Marmot theme (0-starwatch.jpg).
+#   ╭─ ~/code/repo   main ?1                        took 3s  22:14
+#   ╰─✦
+# Periwinkle sky pill for the path, navy pill with firefly-yellow git info,
+# and a ✦ star that turns rose when the last command failed.
+
+add_newline = true
+command_timeout = 200
+palette = "starwatch"
+
+format = """
+[╭─](muted)\
+[](sky)$directory[](fg:sky bg:night)\
+$git_branch$git_status[](night) \
+$python$nodejs$rust\
+$fill\
+$cmd_duration${custom.moon}$time
+[╰─](muted)$character"""
+
+[palettes.starwatch]
+navy = "#030E2A"
+night = "#1c263f"
+sky = "#647cd6"
+starlight = "#869dff"
+firefly = "#e3dc5c"
+cream = "#B8B475"
+meadow = "#53bd52"
+rose = "#e0848f"
+nebula = "#b8acf5"
+muted = "#4d5686"
+
+[fill]
+symbol = " "
+
+[character]
+success_symbol = "[✦](bold firefly)"
+error_symbol = "[✦](bold rose)"
+vimcmd_symbol = "[✧](bold starlight)"
+
+[directory]
+style = "bold fg:navy bg:sky"
+format = "[ $path ]($style)[$read_only]($read_only_style)"
+read_only = " 󰌾 "
+read_only_style = "fg:navy bg:sky"
+truncation_length = 3
+truncation_symbol = "…/"
+repo_root_style = "bold fg:navy bg:sky"
+repo_root_format = "[ $repo_root]($repo_root_style)[$path ]($style)[$read_only]($read_only_style)"
+
+[git_branch]
+symbol = " "
+style = "fg:firefly bg:night"
+format = "[ $symbol$branch ]($style)"
+
+[git_status]
+style = "fg:nebula bg:night"
+format = "[($all_status$ahead_behind )]($style)"
+ahead = "⇡${count} "
+behind = "⇣${count} "
+diverged = "⇕⇡${ahead_count}⇣${behind_count} "
+conflicted = "= "
+untracked = "?${count} "
+modified = "!${count} "
+staged = "+${count} "
+stashed = ""
+renamed = ""
+deleted = "✘${count} "
+
+[python]
+symbol = " "
+style = "fg:meadow"
+format = "[$symbol($version )(\\($virtualenv\\) )]($style)"
+
+[nodejs]
+symbol = " "
+style = "fg:meadow"
+format = "[$symbol($version )]($style)"
+
+[rust]
+symbol = " "
+style = "fg:rose"
+format = "[$symbol($version )]($style)"
+
+[cmd_duration]
+min_time = 2000
+style = "fg:cream"
+format = "[took $duration ]($style)"
+
+[time]
+disabled = false
+time_format = "%H:%M"
+style = "fg:starlight"
+format = "[ $time]($style)"
+
+# ☾ rises beside the clock after 9pm and sets at 5am
+[custom.moon]
+when = 'h=$(date +%-H); [ "$h" -ge 21 ] || [ "$h" -lt 5 ]'
+shell = ["sh"]
+symbol = "☾"
+style = "fg:nebula"
+format = "[$symbol ]($style)"

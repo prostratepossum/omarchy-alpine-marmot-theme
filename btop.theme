@@ -1,0 +1,58 @@
+# Alpine Marmot — Starwatch btop theme (overlay; wins over the generated one).
+# Transparent background so the blurred wallpaper shows through; graphs climb
+# from deep night blue at idle through starlight to firefly yellow at peak.
+
+theme[main_bg]=""
+theme[main_fg]="#B8B475"
+theme[title]="#d7d581"
+theme[hi_fg]="#e3dc5c"
+theme[selected_bg]="#1c263f"
+theme[selected_fg]="#e3dc5c"
+theme[inactive_fg]="#4d5686"
+theme[graph_text]="#c3bf8a"
+theme[meter_bg]="#1c263f"
+theme[proc_misc]="#869dff"
+
+# Box outlines: sky, meadow, nebula, starlight
+theme[cpu_box]="#647cd6"
+theme[mem_box]="#389447"
+theme[net_box]="#9d8fe6"
+theme[proc_box]="#869dff"
+theme[div_line]="#4d5686"
+
+# Temperature: meadow -> firefly -> rose
+theme[temp_start]="#53bd52"
+theme[temp_mid]="#e3dc5c"
+theme[temp_end]="#e0848f"
+
+# CPU: night sky -> starlight -> firefly
+theme[cpu_start]="#3d52a8"
+theme[cpu_mid]="#869dff"
+theme[cpu_end]="#e3dc5c"
+
+# Memory meters
+theme[free_start]="#1c263f"
+theme[free_mid]="#3888a3"
+theme[free_end]="#57add0"
+theme[cached_start]="#3d52a8"
+theme[cached_mid]="#647cd6"
+theme[cached_end]="#9d8fe6"
+theme[available_start]="#8a8758"
+theme[available_mid]="#B8B475"
+theme[available_end]="#d7d581"
+theme[used_start]="#389447"
+theme[used_mid]="#53bd52"
+theme[used_end]="#e3dc5c"
+
+# Network: download = Milky Way (blue -> nebula -> dust pink), upload = meadow -> firefly
+theme[download_start]="#3d52a8"
+theme[download_mid]="#9d8fe6"
+theme[download_end]="#e8a97a"
+theme[upload_start]="#389447"
+theme[upload_mid]="#53bd52"
+theme[upload_end]="#e3dc5c"
+
+# Process list: cool -> hot
+theme[process_start]="#647cd6"
+theme[process_mid]="#9d8fe6"
+theme[process_end]="#e3dc5c"

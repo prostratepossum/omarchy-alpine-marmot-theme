@@ -1,0 +1,11 @@
+[Plymouth Theme]
+Name=Starwatch
+Description=Alpine Marmot starwatch splash: twinkling stars, drifting fireflies, floating marmot.
+ModuleName=script
+
+[script]
+ImageDir=/usr/share/plymouth/themes/starwatch
+ScriptFile=/usr/share/plymouth/themes/starwatch/starwatch.script
+ConsoleLogBackgroundColor=0x030e2a
+MonospaceFont=Cantarell 11
+Font=Cantarell 11

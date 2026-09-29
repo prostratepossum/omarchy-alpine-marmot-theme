@@ -1,0 +1,319 @@
+# Starwatch — Alpine Marmot boot splash.
+# The starwatch meadow fades in, stars twinkle, fireflies drift up out of the
+# grass, an occasional shooting star crosses the sky, and the marmot badge
+# floats in a breathing halo. The LUKS password prompt keeps the stock Omarchy
+# behaviour (entry pill + one bullet per character), restyled as fireflies.
+# Refresh runs at ~50 fps; every animation below is keyed off global.frame.
+
+W = Window.GetWidth();
+H = Window.GetHeight();
+
+Window.SetBackgroundTopColor(0.012, 0.055, 0.165);
+Window.SetBackgroundBottomColor(0.008, 0.043, 0.125);
+
+global.frame = 0;
+
+#----------------------------------------- Sky --------------------------------
+
+bg.raw = Image("background.png");
+bg.scale = W / bg.raw.GetWidth();
+if (H / bg.raw.GetHeight() > bg.scale) bg.scale = H / bg.raw.GetHeight();
+bg.w = Math.Int(bg.raw.GetWidth() * bg.scale + 0.5);
+bg.h = Math.Int(bg.raw.GetHeight() * bg.scale + 0.5);
+bg.image = bg.raw.Scale(bg.w, bg.h);
+bg.sprite = Sprite(bg.image);
+bg.sprite.SetPosition(Math.Int((W - bg.w) / 2), Math.Int((H - bg.h) / 2), -100);
+bg.sprite.SetOpacity(0);
+
+star_image = Image("star.png");
+global.star_count = 70;
+for (i = 0; i < global.star_count; i++) {
+  size = 5 + Math.Int(Math.Random() * 8);
+  stars[i].sprite = Sprite(star_image.Scale(size, size));
+  stars[i].sprite.SetPosition(Math.Int(Math.Random() * W), Math.Int(Math.Random() * H * 0.30), 5);
+  stars[i].sprite.SetOpacity(0);
+  stars[i].speed = 0.02 + Math.Random() * 0.08;
+  stars[i].phase = Math.Random() * 6.283;
+  stars[i].base = 0.2 + Math.Random() * 0.35;
+}
+
+#----------------------------------------- Fireflies --------------------------------
+
+firefly_image = Image("firefly.png");
+global.firefly_count = 28;
+
+fun spawn_firefly(i) {
+  global.fireflies[i].x0 = Math.Random() * W;
+  global.fireflies[i].y = H * (0.62 + Math.Random() * 0.36);
+  global.fireflies[i].vy = 0.12 + Math.Random() * 0.3;
+  global.fireflies[i].amp = 8 + Math.Random() * 28;
+  global.fireflies[i].wobble = 0.008 + Math.Random() * 0.02;
+  global.fireflies[i].pulse = 0.03 + Math.Random() * 0.06;
+  global.fireflies[i].phase = Math.Random() * 6.283;
+  global.fireflies[i].life = 0;
+  global.fireflies[i].max_life = 300 + Math.Random() * 450;
+}
+
+for (i = 0; i < global.firefly_count; i++) {
+  size = 14 + Math.Int(Math.Random() * 14);
+  fireflies[i].sprite = Sprite(firefly_image.Scale(size, size));
+  fireflies[i].sprite.SetZ(20);
+  fireflies[i].sprite.SetOpacity(0);
+  spawn_firefly(i);
+  # Stagger so they don't all fade in together.
+  fireflies[i].life = Math.Int(Math.Random() * fireflies[i].max_life);
+}
+
+#----------------------------------------- Shooting star --------------------------------
+
+streak.image = Image("streak.png");
+streak.sprite = Sprite(streak.image);
+streak.sprite.SetZ(15);
+streak.sprite.SetOpacity(0);
+global.streak_period = 380;
+global.streak_length = 55;
+
+#----------------------------------------- Marmot badge --------------------------------
+
+badge.size = Math.Int(H * 0.16);
+if (badge.size < 120) badge.size = 120;
+badge.image = Image("badge.png").Scale(badge.size, badge.size);
+badge.sprite = Sprite(badge.image);
+badge.x = Math.Int(W / 2 - badge.size / 2);
+badge.y = Math.Int(H * 0.40 - badge.size / 2);
+badge.sprite.SetPosition(badge.x, badge.y, 100);
+badge.sprite.SetOpacity(0);
+
+halo.size = Math.Int(badge.size * 1.6);
+halo.image = Image("halo.png").Scale(halo.size, halo.size);
+halo.sprite = Sprite(halo.image);
+halo.sprite.SetPosition(Math.Int(W / 2 - halo.size / 2), Math.Int(badge.y + badge.size / 2 - halo.size / 2), 90);
+halo.sprite.SetOpacity(0);
+
+#----------------------------------------- Animation --------------------------------
+
+fun clamp01(v) {
+  if (v < 0) return 0;
+  if (v > 1) return 1;
+  return v;
+}
+
+fun animate() {
+  f = global.frame;
+  intro = clamp01(f / 60);
+
+  bg.sprite.SetOpacity(intro);
+
+  bob = Math.Sin(f * 0.035) * 6;
+  badge.sprite.SetY(Math.Int(badge.y + bob));
+  badge.sprite.SetOpacity(clamp01((f - 15) / 50));
+  halo.sprite.SetY(Math.Int(badge.y + badge.size / 2 - halo.size / 2 + bob));
+  halo.sprite.SetOpacity(intro * (0.55 + 0.3 * Math.Sin(f * 0.05)));
+
+  for (i = 0; i < global.star_count; i++) {
+    tw = Math.Sin(f * stars[i].speed + stars[i].phase);
+    stars[i].sprite.SetOpacity(intro * clamp01(stars[i].base + 0.45 * tw));
+  }
+
+  for (i = 0; i < global.firefly_count; i++) {
+    global.fireflies[i].life = fireflies[i].life + 1;
+    if (fireflies[i].life > fireflies[i].max_life) spawn_firefly(i);
+    global.fireflies[i].y = fireflies[i].y - fireflies[i].vy;
+    x = fireflies[i].x0 + Math.Sin(f * fireflies[i].wobble + fireflies[i].phase) * fireflies[i].amp;
+    fireflies[i].sprite.SetX(Math.Int(x));
+    fireflies[i].sprite.SetY(Math.Int(fireflies[i].y));
+    fade = Math.Sin(3.14159 * fireflies[i].life / fireflies[i].max_life);
+    glow = 0.45 + 0.55 * Math.Sin(f * fireflies[i].pulse + fireflies[i].phase);
+    fireflies[i].sprite.SetOpacity(intro * clamp01(fade * glow));
+  }
+
+  # One shooting star per period, starting upper right, heading down-left.
+  cycle = Math.Int(f / global.streak_period);
+  local_frame = f - cycle * global.streak_period;
+  if (cycle > 0 && local_frame < global.streak_length) {
+    if (local_frame == 0) {
+      global.streak_x0 = W * (0.45 + Math.Random() * 0.45);
+      global.streak_y0 = H * (0.02 + Math.Random() * 0.12);
+    }
+    p = local_frame / global.streak_length;
+    streak.sprite.SetX(Math.Int(global.streak_x0 - p * W * 0.28));
+    streak.sprite.SetY(Math.Int(global.streak_y0 + p * W * 0.14));
+    streak.sprite.SetOpacity(Math.Sin(3.14159 * p) * 0.9);
+  } else {
+    streak.sprite.SetOpacity(0);
+  }
+}
+
+#----------------------------------------- Progress (from Omarchy) --------------------------------
+
+global.fake_progress_limit = 0.7;
+global.fake_progress_duration = 15.0;
+global.fake_frame = 0;
+global.fake_progress = 0.0;
+global.real_progress = 0.0;
+global.fake_progress_active = 0;
+global.fake_progress_start_time = 0.0;
+global.password_shown = 0;
+global.max_progress = 0.0;
+
+fun refresh_callback() {
+  global.frame++;
+  animate();
+
+  if (global.fake_progress_active == 1) {
+    global.fake_frame++;
+    time_ratio = (global.fake_frame / 50.0) / global.fake_progress_duration;
+    if (time_ratio > 1.0) time_ratio = 1.0;
+    eased_ratio = 1 - ((1 - time_ratio) * (1 - time_ratio));
+    global.fake_progress = eased_ratio * global.fake_progress_limit;
+    update_progress_bar(global.fake_progress);
+  }
+}
+
+Plymouth.SetRefreshFunction(refresh_callback);
+
+fun update_progress_bar(progress) {
+  if (progress > global.max_progress) {
+    global.max_progress = progress;
+    width = Math.Int(progress_bar.original_image.GetWidth() * progress);
+    if (width < 1) width = 1;
+    progress_bar.image = progress_bar.original_image.Scale(width, progress_bar.original_image.GetHeight());
+    progress_bar.sprite.SetImage(progress_bar.image);
+  }
+}
+
+fun show_progress_bar() {
+  progress_box.sprite.SetOpacity(1);
+  progress_bar.sprite.SetOpacity(1);
+}
+
+fun hide_progress_bar() {
+  progress_box.sprite.SetOpacity(0);
+  progress_bar.sprite.SetOpacity(0);
+}
+
+fun start_fake_progress() {
+  global.fake_progress_active = 1;
+  global.fake_frame = 0;
+  global.max_progress = 0.0;
+  global.fake_progress = 0.0;
+  global.fake_progress_start_time = 0.0;
+}
+
+fun stop_fake_progress() {
+  global.fake_progress_active = 0;
+}
+
+#----------------------------------------- Password dialogue --------------------------------
+
+entry.image = Image("entry.png");
+bullet.image = Image("bullet.png");
+
+entry.sprite = Sprite(entry.image);
+entry.x = Math.Int(W / 2 - entry.image.GetWidth() / 2);
+entry.y = Math.Int(badge.y + badge.size + 60);
+entry.sprite.SetPosition(entry.x, entry.y, 10001);
+entry.sprite.SetOpacity(0);
+
+global.bullet_size = 12;
+global.bullet_gap = 8;
+global.max_bullets = 22;
+bullet.sprites = [];
+
+fun show_password_dialog() {
+  entry.sprite.SetOpacity(1);
+}
+
+fun hide_password_dialog() {
+  entry.sprite.SetOpacity(0);
+  for (index = 0; bullet.sprites[index]; index++) {
+    bullet.sprites[index].SetOpacity(0);
+  }
+}
+
+fun display_normal_callback() {
+  hide_password_dialog();
+  mode = Plymouth.GetMode();
+  if ((mode == "boot" || mode == "resume") && global.password_shown == 1) {
+    show_progress_bar();
+    start_fake_progress();
+  }
+}
+
+fun display_password_callback(prompt, bullets) {
+  global.password_shown = 1;
+  stop_fake_progress();
+  hide_progress_bar();
+  show_password_dialog();
+
+  for (index = 0; bullet.sprites[index]; index++) {
+    bullet.sprites[index].SetOpacity(0);
+  }
+
+  count = bullets;
+  if (count > global.max_bullets) count = global.max_bullets;
+
+  # Centre the row of firefly bullets inside the pill.
+  row_width = count * global.bullet_size + (count - 1) * global.bullet_gap;
+  start_x = entry.x + entry.image.GetWidth() / 2 - row_width / 2;
+  y = entry.y + entry.image.GetHeight() / 2 - global.bullet_size / 2;
+
+  for (index = 0; index < count; index++) {
+    if (!bullet.sprites[index]) {
+      bullet.sprites[index] = Sprite(bullet.image.Scale(global.bullet_size, global.bullet_size));
+    }
+    bullet.sprites[index].SetPosition(Math.Int(start_x + index * (global.bullet_size + global.bullet_gap)), Math.Int(y), 10002);
+    bullet.sprites[index].SetOpacity(1);
+  }
+}
+
+Plymouth.SetDisplayNormalFunction(display_normal_callback);
+Plymouth.SetDisplayPasswordFunction(display_password_callback);
+
+#----------------------------------------- Progress bar --------------------------------
+
+progress_box.image = Image("progress_box.png");
+progress_box.sprite = Sprite(progress_box.image);
+progress_box.x = Math.Int(W / 2 - progress_box.image.GetWidth() / 2);
+progress_box.y = Math.Int(entry.y + entry.image.GetHeight() / 2 - progress_box.image.GetHeight() / 2);
+progress_box.sprite.SetPosition(progress_box.x, progress_box.y, 200);
+progress_box.sprite.SetOpacity(0);
+
+progress_bar.original_image = Image("progress_bar.png");
+progress_bar.sprite = Sprite();
+progress_bar.image = progress_bar.original_image.Scale(1, progress_bar.original_image.GetHeight());
+progress_bar.x = Math.Int(W / 2 - progress_bar.original_image.GetWidth() / 2);
+progress_bar.y = Math.Int(progress_box.y + (progress_box.image.GetHeight() - progress_bar.original_image.GetHeight()) / 2);
+progress_bar.sprite.SetPosition(progress_bar.x, progress_bar.y, 201);
+progress_bar.sprite.SetOpacity(0);
+
+fun progress_callback(duration, progress) {
+  if (global.fake_progress_start_time == 0.0) {
+    global.fake_progress_start_time = duration;
+  }
+  global.real_progress = progress;
+  if (duration > global.fake_progress_start_time && progress > global.fake_progress) {
+    stop_fake_progress();
+    update_progress_bar(progress);
+  }
+}
+
+Plymouth.SetBootProgressFunction(progress_callback);
+
+#----------------------------------------- Messages --------------------------------
+
+message_sprite = Sprite();
+message_sprite.SetPosition(10, 10, 10000);
+
+fun display_message_callback(text) {
+  message = Image.Text(text, 0.72, 0.71, 0.46);
+  message_sprite.SetImage(message);
+  message_sprite.SetOpacity(1);
+}
+
+fun hide_message_callback(text) {
+  message_sprite.SetOpacity(0);
+}
+
+Plymouth.SetDisplayMessageFunction(display_message_callback);
+Plymouth.SetHideMessageFunction(hide_message_callback);

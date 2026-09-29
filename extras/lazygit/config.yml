@@ -1,0 +1,36 @@
+# Alpine Marmot — Starwatch lazygit colors
+gui:
+  nerdFontsVersion: "3"
+  border: rounded
+  theme:
+    activeBorderColor:
+      - "#e3dc5c"   # firefly: focused panel
+      - bold
+    inactiveBorderColor:
+      - "#4d5686"   # dusk
+    searchingActiveBorderColor:
+      - "#9d8fe6"
+      - bold
+    optionsTextColor:
+      - "#869dff"
+    selectedLineBgColor:
+      - "#1c263f"
+    inactiveViewSelectedLineBgColor:
+      - "#111a33"
+    cherryPickedCommitFgColor:
+      - "#030E2A"
+    cherryPickedCommitBgColor:
+      - "#9d8fe6"
+    markedBaseCommitFgColor:
+      - "#030E2A"
+    markedBaseCommitBgColor:
+      - "#e3dc5c"
+    unstagedChangesColor:
+      - "#e0848f"
+    defaultFgColor:
+      - "#B8B475"
+  authorColors:
+    "*": "#869dff"
+  branchColorPatterns:
+    "^main$": "#53bd52"
+    "^master$": "#53bd52"

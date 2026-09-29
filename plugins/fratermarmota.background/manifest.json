@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "id": "fratermarmota.background",
+  "name": "Starwatch Background",
+  "version": "1.0.0",
+  "author": "fratermarmota",
+  "description": "Omarchy background renderer plus a live Starwatch shader: twinkling stars, drifting fireflies and rare shooting stars on wallpapers named *starwatch*.",
+  "kinds": [
+    "service"
+  ],
+  "entryPoints": {
+    "service": "Background.qml"
+  },
+  "omarchy": {
+    "clonedFrom": "omarchy.background"
+  }
+}

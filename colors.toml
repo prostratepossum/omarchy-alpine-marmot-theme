@@ -1,0 +1,37 @@
+# Alpine Marmot — Starwatch. Palette extracted by Aether from 0-starwatch.jpg;
+# red/orange/yellow/magenta hand-picked from the same image (Milky Way core,
+# fireflies) because the wallpaper has no natural red for error colors.
+mode = "dark"
+
+accent = "#647cd6"
+selection = "#1c263f"
+muted = "#676a70"
+
+background = "#030E2A"
+dark_background = "#020b20"
+darker_background = "#020715"
+lighter_background = "#1c263f"
+
+foreground = "#B8B475"
+dark_foreground = "#8a8758"
+light_foreground = "#c3bf8a"
+bright_foreground = "#d7d581"
+
+selection_foreground = "#030E2A"
+selection_background = "#B8B475"
+
+red = "#e0848f"
+orange = "#e8a97a"
+yellow = "#e3dc5c"
+green = "#389447"
+cyan = "#3888a3"
+blue = "#647cd6"
+magenta = "#9d8fe6"
+brown = "#4d5686"
+
+bright_red = "#f0a0a8"
+bright_yellow = "#f0ea80"
+bright_green = "#53bd52"
+bright_cyan = "#57add0"
+bright_blue = "#869dff"
+bright_magenta = "#b8acf5"
