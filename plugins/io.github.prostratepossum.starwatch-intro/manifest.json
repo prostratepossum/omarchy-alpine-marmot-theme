@@ -1,14 +1,15 @@
 {
   "schemaVersion": 1,
-  "id": "fratermarmota.intro",
+  "id": "io.github.prostratepossum.starwatch-intro",
   "name": "Starwatch Intro",
   "version": "1.0.0",
-  "author": "fratermarmota",
+  "author": "prostratepossum",
   "description": "One-shot starwatch login intro: sky fades in, fireflies gather into the marmot badge, then an iris opens onto the desktop.",
   "kinds": [
     "service"
   ],
   "entryPoints": {
     "service": "Intro.qml"
-  }
+  },
+  "homepage": "https://github.com/prostratepossum/omarchy-starwatch-intro"
 }

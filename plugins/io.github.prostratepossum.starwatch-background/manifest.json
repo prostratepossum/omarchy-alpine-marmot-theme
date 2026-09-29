@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "id": "fratermarmota.background",
+  "id": "io.github.prostratepossum.starwatch-background",
   "name": "Starwatch Background",
   "version": "1.0.0",
-  "author": "fratermarmota",
+  "author": "prostratepossum",
   "description": "Omarchy background renderer plus a live Starwatch shader: twinkling stars, drifting fireflies and rare shooting stars on wallpapers named *starwatch*.",
   "kinds": [
     "service"
@@ -13,5 +13,6 @@
   },
   "omarchy": {
     "clonedFrom": "omarchy.background"
-  }
+  },
+  "homepage": "https://github.com/prostratepossum/omarchy-starwatch-background"
 }

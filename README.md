@@ -23,9 +23,9 @@ A night-meadow theme for [Omarchy](https://omarchy.org): a marmot watching the M
 | Piece | What it does |
 |---|---|
 | **Theme** (`colors.toml`, `backgrounds/`, `btop.theme`, `icons.theme`) | The "Starwatch" palette: navy sky, blue accent, firefly-cream text. The palette was pulled from the wallpaper with Aether and the reds/yellows were hand-tuned. Includes 4 wallpapers. |
-| **Live wallpaper** (`plugins/fratermarmota.background`) | A GPU shader over the Starwatch wallpaper. Stars twinkle, fireflies drift and pulse in the grass, and a shooting star crosses now and then. Runs at 30 fps and pauses when a window is fullscreen. Other wallpapers stay static. |
-| **Lock screen** (`plugins/fratermarmota.lock`) | Animated sky with a slow zoom, the marmot badge in a rotating ring, a greeting, a glowing clock, and a password pill with an aurora ring. Fireflies float around and every keystroke throws sparks. Wrong passwords shake red. |
-| **Login intro** (`plugins/fratermarmota.intro`) | A ~5 s overlay once per boot. The sky fades in, fireflies gather into the badge, then an iris opens onto your desktop. It's click-through, so it never blocks you. |
+| **Live wallpaper** ([standalone](https://github.com/prostratepossum/omarchy-starwatch-background)) | A GPU shader over the Starwatch wallpaper. Stars twinkle, fireflies drift and pulse in the grass, and a shooting star crosses now and then. Runs at 30 fps and pauses when a window is fullscreen. Other wallpapers stay static. |
+| **Lock screen** ([standalone](https://github.com/prostratepossum/omarchy-starwatch-lock)) | Animated sky with a slow zoom, the marmot badge in a rotating ring, a greeting, a glowing clock, and a password pill with an aurora ring. Fireflies float around and every keystroke throws sparks. Wrong passwords shake red. |
+| **Login intro** ([standalone](https://github.com/prostratepossum/omarchy-starwatch-intro)) | A ~5 s overlay once per boot. The sky fades in, fireflies gather into the badge, then an iris opens onto your desktop. It's click-through, so it never blocks you. |
 | **Boot splash** (`plymouth-starwatch/`) | Animated Plymouth theme with twinkling stars, drifting fireflies, a shooting star and a floating badge. Password bullets are drawn as fireflies. Optional, and needs sudo. |
 | **Login chime** (`sounds/`) | A soft synthesized night-meadow chime played at login. Optional. |
 | **Terminal rice** (`extras/`) | Starship prompt, fastfetch marmot logo, lazygit, eza and fzf colors, and a transparent btop. Optional. |
@@ -40,6 +40,8 @@ cd omarchy-alpine-marmot-theme
 ./install.sh            # theme + live wallpaper + lock screen + intro
 ./install.sh --all      # ...plus terminal rice and login chime
 ```
+
+Only want one of the animations? Each is also its own plugin: `omarchy plugin add https://github.com/prostratepossum/omarchy-starwatch-background --enable` (likewise `-lock`, `-intro`).
 
 Other options: `--dotfiles`, `--sound`, `--no-plugins` (theme only). Any file the installer replaces is backed up next to the original as `*.bak.<timestamp>`.
 

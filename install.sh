@@ -16,7 +16,7 @@ SRC="$(cd "$(dirname "$0")" && pwd)"
 THEME_DIR="$HOME/.config/omarchy/themes/alpine-marmot"
 PLUGINS_DIR="$HOME/.config/omarchy/plugins"
 STAMP=$(date +%s)
-PLUGINS=(fratermarmota.background fratermarmota.lock fratermarmota.intro)
+PLUGINS=(io.github.prostratepossum.starwatch-background io.github.prostratepossum.starwatch-lock io.github.prostratepossum.starwatch-intro)
 
 plugins=1 dotfiles=0 sound=0 uninstall=0
 for arg in "$@"; do
@@ -74,9 +74,8 @@ if (( plugins )); then
     fi
     cp -a "$SRC/plugins/$id" "$PLUGINS_DIR/$id"
   done
-  # The background and lock plugins replace the stock ones.
-  omarchy plugin disable omarchy.background >/dev/null
-  omarchy plugin disable omarchy.lock >/dev/null
+  # Enabling the background and lock forks switches off the stock ones
+  # (they declare clonedFrom), and removing them brings the stock ones back.
   for id in "${PLUGINS[@]}"; do omarchy plugin enable "$id" >/dev/null; done
   omarchy-restart-shell >/dev/null 2>&1 || true
 fi

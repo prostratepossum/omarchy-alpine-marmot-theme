@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "id": "fratermarmota.lock",
+  "id": "io.github.prostratepossum.starwatch-lock",
   "name": "Starwatch Lock Screen",
   "version": "1.0.0",
-  "author": "fratermarmota",
+  "author": "prostratepossum",
   "description": "Omarchy lock screen reskinned as a Starwatch night sky: animated shader sky, marmot badge in a rotating ring, glowing clock, firefly particles and keystroke sparks.",
   "omarchy": {
     "capabilities": [
@@ -17,5 +17,6 @@
   "keepLoaded": true,
   "entryPoints": {
     "service": "Service.qml"
-  }
+  },
+  "homepage": "https://github.com/prostratepossum/omarchy-starwatch-lock"
 }
