@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "id": "io.github.prostratepossum.starwatch-clicks",
+  "name": "Starwatch Clicks",
+  "version": "1.0.0",
+  "author": "prostratepossum",
+  "description": "A tiny firefly burst wherever you click: fireflies for left, lavender sparkles for right, a glacier ripple for middle. Click-through, skips fullscreen.",
+  "kinds": [
+    "service"
+  ],
+  "entryPoints": {
+    "service": "Clicks.qml"
+  },
+  "homepage": "https://github.com/prostratepossum/omarchy-starwatch-clicks"
+}

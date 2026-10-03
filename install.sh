@@ -1,11 +1,12 @@
 #!/bin/bash
 # Alpine Marmot / Starwatch for Omarchy.
 #
-#   ./install.sh                 theme + live wallpaper + lock screen + intro
+#   ./install.sh                 theme + cursors + live wallpaper, lock screen, intro, click effects
 #   ./install.sh --all           ...plus terminal rice and login chime
 #   ./install.sh --dotfiles      also install starship, fastfetch, lazygit, eza/fzf colors
 #   ./install.sh --sound         also play the Starwatch chime at login
-#   ./install.sh --no-plugins    theme only (colors, wallpapers, btop, icons)
+#   ./install.sh --no-plugins    no shell plugins (theme + cursors only)
+#   ./install.sh --no-cursors    keep your current mouse cursor
 #   ./install.sh --uninstall     restore the stock Omarchy plugins and remove extras
 #
 # Boot splash is separate (needs sudo, rebuilds initramfs):
@@ -16,17 +17,20 @@ SRC="$(cd "$(dirname "$0")" && pwd)"
 THEME_DIR="$HOME/.config/omarchy/themes/alpine-marmot"
 PLUGINS_DIR="$HOME/.config/omarchy/plugins"
 STAMP=$(date +%s)
-PLUGINS=(io.github.prostratepossum.starwatch-background io.github.prostratepossum.starwatch-lock io.github.prostratepossum.starwatch-intro)
+PLUGINS=(io.github.prostratepossum.starwatch-background io.github.prostratepossum.starwatch-lock io.github.prostratepossum.starwatch-intro io.github.prostratepossum.starwatch-clicks)
+CURSOR_DIR="$HOME/.local/share/icons/Starwatch"
+LOOKNFEEL="$HOME/.config/hypr/looknfeel.lua"
 
-plugins=1 dotfiles=0 sound=0 uninstall=0
+plugins=1 cursors=1 dotfiles=0 sound=0 uninstall=0
 for arg in "$@"; do
   case "$arg" in
   --all) dotfiles=1 sound=1 ;;
   --dotfiles) dotfiles=1 ;;
   --sound) sound=1 ;;
   --no-plugins) plugins=0 ;;
+  --no-cursors) cursors=0 ;;
   --uninstall) uninstall=1 ;;
-  -h | --help) sed -n '2,12p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
+  -h | --help) sed -n '2,13p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
   *) echo "unknown option: $arg" >&2; exit 1 ;;
   esac
 done
@@ -51,7 +55,13 @@ if (( uninstall )); then
   systemctl --user disable --now starwatch-login-sound.service 2>/dev/null || true
   rm -f "$HOME/.config/systemd/user/starwatch-login-sound.service"
   sed -i '/# >>> starwatch >>>/,/# <<< starwatch <<</d' "$HOME/.bashrc" 2>/dev/null || true
-  echo "Removed the Starwatch plugins, login chime and shell colors."
+  if grep -q -- '-- >>> starwatch cursor >>>' "$LOOKNFEEL" 2>/dev/null; then
+    sed -i '/-- >>> starwatch cursor >>>/,/-- <<< starwatch cursor <<</d' "$LOOKNFEEL"
+    gsettings reset org.gnome.desktop.interface cursor-theme 2>/dev/null || true
+    hyprctl setcursor Adwaita "${XCURSOR_SIZE:-24}" >/dev/null 2>&1 || true
+  fi
+  rm -rf "$CURSOR_DIR"
+  echo "Removed the Starwatch plugins, cursors, login chime and shell colors."
   echo "Pick another theme with: omarchy theme set <name>"
   echo "Dotfiles you replaced are next to their originals as *.bak.<timestamp>."
   exit 0
@@ -66,7 +76,8 @@ omarchy theme set alpine-marmot
 omarchy theme bg set "$THEME_DIR/backgrounds/0-starwatch.jpg" >/dev/null 2>&1 || true
 
 if (( plugins )); then
-  echo "✦ Installing the Starwatch shell plugins (live wallpaper, lock screen, intro)"
+  echo "✦ Installing the Starwatch shell plugins (live wallpaper, lock screen, intro, click effects)"
+  mkdir -p "$PLUGINS_DIR"
   for id in "${PLUGINS[@]}"; do
     if [[ -d $PLUGINS_DIR/$id ]]; then
       mv "$PLUGINS_DIR/$id" "$PLUGINS_DIR/.$id.bak.$STAMP"
@@ -78,6 +89,28 @@ if (( plugins )); then
   # (they declare clonedFrom), and removing them brings the stock ones back.
   for id in "${PLUGINS[@]}"; do omarchy plugin enable "$id" >/dev/null; done
   omarchy-restart-shell >/dev/null 2>&1 || true
+
+  # The click effects read mouse buttons through evdev.
+  if ! /usr/bin/python3 -c 'import evdev' 2>/dev/null; then
+    echo "  click effects need python-evdev:  sudo pacman -S python-evdev"
+  fi
+  if ! id -nG | grep -qw input; then
+    echo "  click effects need the input group:  sudo usermod -aG input \$USER  (then log out and back in)"
+  fi
+fi
+
+if (( cursors )); then
+  echo "✦ Installing the Starwatch cursors"
+  rm -rf "$CURSOR_DIR"
+  mkdir -p "$(dirname "$CURSOR_DIR")"
+  cp -a "$SRC/cursors/Starwatch" "$CURSOR_DIR"
+  if [[ -f $LOOKNFEEL ]] && ! grep -q -- '-- >>> starwatch cursor >>>' "$LOOKNFEEL"; then
+    cp -a "$LOOKNFEEL" "$LOOKNFEEL.bak.$STAMP"
+    printf '\n-- >>> starwatch cursor >>>\nhl.env("XCURSOR_THEME", "Starwatch")\n-- <<< starwatch cursor <<<\n' >> "$LOOKNFEEL"
+    echo "  set XCURSOR_THEME in $LOOKNFEEL (backup: $LOOKNFEEL.bak.$STAMP)"
+  fi
+  gsettings set org.gnome.desktop.interface cursor-theme Starwatch 2>/dev/null || true
+  hyprctl setcursor Starwatch "${XCURSOR_SIZE:-24}" >/dev/null 2>&1 || true
 fi
 
 if (( dotfiles )); then
@@ -107,6 +140,7 @@ cat <<DONE
   omarchy-shell -q intro play                  replay the login intro
   omarchy-shell lock previewInteractive        preview the lock screen (closes after 90s)
   omarchy-shell -q background toggleAnimation  pause/resume the live wallpaper
+  omarchy-shell -q clicks toggle               turn the click effects on/off
 
 Optional animated boot splash (sudo, rebuilds initramfs; --revert to undo):
   $THEME_DIR/plymouth-starwatch/install.sh
