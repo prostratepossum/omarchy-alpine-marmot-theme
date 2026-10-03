@@ -499,7 +499,6 @@ def run_daemon(port: int) -> None:
             flush=True,
         )
 
-        logged = 0
         dirty = False
         while True:
             now = time.time()
@@ -515,12 +514,6 @@ def run_daemon(port: int) -> None:
                         continue
                     name = codes.get(event.code)
                     idx = name_to_index.get(name) if name else None
-                    if logged < 8:
-                        print(
-                            f"key code={event.code} name={name!r} led={idx}",
-                            flush=True,
-                        )
-                        logged += 1
                     if idx is None:
                         continue
                     hits[idx] = now

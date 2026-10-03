@@ -36,6 +36,7 @@ A night-meadow theme for [Omarchy](https://omarchy.org): a marmot watching the M
 | **Click effects** ([standalone](https://github.com/prostratepossum/omarchy-starwatch-clicks)) | A tiny burst wherever you click: fireflies for left, lavender sparkles for right, a glacier ripple for middle. Click-through, and skipped over fullscreen windows. Needs `python-evdev` and the `input` group (see below). |
 | **Boot splash** (`plymouth-starwatch/`) | Animated Plymouth theme with twinkling stars, drifting fireflies, a shooting star and a floating badge. Password bullets are drawn as fireflies. Optional, and needs sudo. |
 | **Login chime** (`sounds/`) | A soft synthesized night-meadow chime played at login. Optional. |
+| **Keyboard lighting** (`extras/keyboard/`) | Per-key RGB matching the wallpaper rows, with a firefly flash on every keypress. Razer BlackWidow V4 Low Profile TKL via OpenRGB; adaptable to other boards. Optional, manual setup. |
 | **Terminal rice** (`extras/`) | Starship prompt, fastfetch marmot logo, lazygit, eza and fzf colors, and a transparent btop. Optional. |
 
 ## Install
@@ -94,7 +95,7 @@ omarchy theme set <another-theme>
 
 ## Notes
 
-- The keyboard lighting script in `extras/keyboard/` targets a Razer BlackWidow through OpenRGB. It's included as a reference and is not installed automatically.
+- **Keyboard lighting** ([`extras/keyboard/`](extras/keyboard/)): per-key RGB for a Razer BlackWidow V4 Low Profile TKL through OpenRGB. The rows follow the wallpaper, and keypresses flash firefly yellow. It's not installed automatically; see its README for setup and how to adapt it to other keyboards.
 - Shaders ship precompiled (`.qsb`). After editing `starwatch.frag`, rebuild with
   `/usr/lib/qt6/bin/qsb --glsl "100es,120,150" --hlsl 50 --msl 12 -o starwatch.frag.qsb starwatch.frag`.
 - The background and lock plugins are forks of Omarchy's built-in `omarchy.background` and `omarchy.lock` (MIT).
