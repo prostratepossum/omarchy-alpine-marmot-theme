@@ -110,7 +110,7 @@ out *= fade
 out *= 0.32 / np.max(np.abs(out))
 
 pcm = (np.clip(out.T, -1, 1) * 32767).astype("<i2")
-dest = Path(__file__).with_name("starwatch-login.wav")
+dest = Path(__file__).resolve().parent.parent / "extras" / "login.wav"
 with wave.open(str(dest), "wb") as wf:
     wf.setnchannels(2)
     wf.setsampwidth(2)
